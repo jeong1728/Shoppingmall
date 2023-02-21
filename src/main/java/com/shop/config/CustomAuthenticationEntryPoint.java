@@ -11,7 +11,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException)
-        throws IOException, ServletException{
+            throws IOException, ServletException{
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");//너권한없는앤데?라고 표출하는것
     }
 }

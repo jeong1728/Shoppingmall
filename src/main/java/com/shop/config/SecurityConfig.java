@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+
 @Configuration //설정 임폴트가 안나올때 해결법
 @EnableWebSecurity
 //WebSecurityConfigurerAdapter 상속 받는 클래스에 @EnableWebSecurity 선언을 하면
@@ -21,7 +22,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+    @Autowired
     MemberService memberService;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception{
@@ -38,12 +42,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests() //인증요청이오면
                         .mvcMatchers("/", "/members/**", "/item/**","/images/**").permitAll() //안에것은 모두가능
                         .mvcMatchers("/admin/**").hasRole("ADMIN") //admin만 가능
-                        .anyRequest().authenticated(); //이외의 것은 로그인필요
+                        .anyRequest().authenticated() //이외의 것은 로그인필요
+                        .and()
+                        .oauth2Login()
+                        .defaultSuccessUrl("/")
+                        .userInfoEndpoint()
+                        .userService(customOAuth2UserService);
+
         http.exceptionHandling() //예외처리
                 .authenticationEntryPoint(new CustomAuthenticationEntryPoint()); //만들어논 커스텀~로 예외처르리를 할것이다.
 
 
-    }
+}
     @Bean //원두 -> 객체 빈객체 -> SpringContainer 들어갑니다. 이 객체 하나로 돌려쓴다.(싱글톤)
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder(); //비밀번호를 암호화 하는 해시함수 패스워드를 암오화할때 이것을 돌려쓴다.
